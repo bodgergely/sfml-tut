@@ -1,30 +1,73 @@
 #include <SFML/Graphics.hpp>
 #include <cstdio>
 #include <iostream>
+#include <memory>
+#include <vector>
 
 #include "utils.h"
 
-using namespace std;
+using std::cout;
+using std::endl;
+using std::shared_ptr;
+using std::unique_ptr;
+using std::vector;
+using DrawablePtr = unique_ptr<sf::Drawable>;
+
+vector<DrawablePtr> drawables = {};
+
+const vector<DrawablePtr>& getDrawables()
+{
+    return drawables;
+}
+
+void handleEvent(const sf::Event& event, sf::RenderWindow& window)
+{
+    switch (event.type)
+    {
+    case sf::Event::Closed:
+        window.close();
+        break;
+    default:
+        break;
+    }
+}
+
+void pollAndHandleEvents(sf::RenderWindow& window)
+{
+    sf::Event event;
+    while (window.pollEvent(event))
+    {
+        // dispatch event
+        handleEvent(event, window);
+    }
+}
+
+void draw(sf::RenderWindow& window)
+{
+    window.clear();
+    for (const auto& thing : getDrawables())
+        window.draw(*thing);
+    window.display();
+}
+
+void runLoop(sf::RenderWindow& window)
+{
+    while (window.isOpen())
+    {
+        pollAndHandleEvents(window);
+        draw(window);
+    }
+}
 
 int main([[maybe_unused]] int argc, [[maybe_unused]] char** argv)
 {
-    sf::RenderWindow window(sf::VideoMode(200, 200), "SFML works!");
-    sf::CircleShape shape(100.f);
-    shape.setFillColor(sf::Color::Green);
+    sf::RenderWindow window(sf::VideoMode(640, 480, 32), "SFML works!", sf::Style::Default);
+    // sf::CircleShape shape(100.f);
+    auto circle = std::make_unique<sf::CircleShape>(100.f);
+    circle->setFillColor(sf::Color::Green);
+    drawables.push_back(std::move(circle));
 
-    while (window.isOpen())
-    {
-        sf::Event event;
-        while (window.pollEvent(event))
-        {
-            cout << event_type_str(event) << "\n";
-            if (event.type == sf::Event::Closed)
-                window.close();
-        }
+    runLoop(window);
 
-        window.clear();
-        window.draw(shape);
-        window.display();
-    }
     return 0;
 }

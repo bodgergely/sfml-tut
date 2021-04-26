@@ -8,6 +8,8 @@
 
 using std::cout;
 using std::endl;
+using std::make_unique;
+using std::move;
 using std::shared_ptr;
 using std::unique_ptr;
 using std::vector;
@@ -59,15 +61,23 @@ void runLoop(sf::RenderWindow& window)
     }
 }
 
-int main([[maybe_unused]] int argc, [[maybe_unused]] char** argv)
+void setupDrawables(vector<DrawablePtr>& drawables)
 {
-    sf::RenderWindow window(sf::VideoMode(640, 480, 32), "SFML works!", sf::Style::Default);
-    // sf::CircleShape shape(100.f);
     auto circle = std::make_unique<sf::CircleShape>(100.f);
     circle->setFillColor(sf::Color::Green);
     drawables.push_back(std::move(circle));
+}
 
-    runLoop(window);
+unique_ptr<sf::RenderWindow> setupWindow()
+{
+    return make_unique<sf::RenderWindow>(sf::VideoMode(640, 480, 32), "SFML works!", sf::Style::Default);
+}
+
+int main([[maybe_unused]] int argc, [[maybe_unused]] char** argv)
+{
+    auto window = setupWindow();
+    setupDrawables(drawables);
+    runLoop(*window);
 
     return 0;
 }

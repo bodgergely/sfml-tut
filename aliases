@@ -1,0 +1,4 @@
+alias e='vim main.cpp'
+alias b='./build.sh'
+alias run='./main'
+alias r='b && run'
